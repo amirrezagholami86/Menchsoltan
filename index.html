@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="version" content="18.0.0">
+<meta name="author" content="امیررضا غلامی">
+<meta name="theme-color" content="#5c3a1e">
+<title>منچ سلطان — نسخه ۱۸.۰.۰</title>
+<style>
+  :root {
+    --wood-dark: #3d2314;
+    --wood-mid: #5c3a1e;
+    --wood-light: #8b5a2b;
+    --board-bg: #d4b896;
+    --board-border: #8b5a2b;
+    --path-bg: #fdfaf0;
+    --path-border: #a89984;
+    
+    /* رنگ بازیکن‌ها */
+    --p1: #ef4444; /* قرمز (تو) */
+    --p2: #22c55e; /* سبز */
+    --p3: #3b82f6; /* آبی */
+    --p4: #eab308; /* زرد */
+    
+    --text-main: #f8fafc;
+  }
+  
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  
+  body {
+    font-family: Tahoma, sans-serif;
+    background: var(--wood-dark);
+    background-image: repeating-linear-gradient(45deg, rgba(0,0,0,0.1) 0px, rgba(0,0,0,0.1) 2px, transparent 2px, transparent 10px);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    color: var(--text-main);
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  
+  .container {
+    width: 100%;
+    max-width: 440px;
+    height: 100vh;
+    max-height: 850px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+  
+  /* هدر */
+  .header {
+    text-align: center;
+    margin-bottom: 8px;
+  }
+  
+  h1 {
+    font-size: 26px;
+    font-weight: 900;
+    color: #fbbf24;
+    text-shadow: 0 2px 0 var(--wood-dark), 0 4px 8px rgba(0,0,0,0.5);
+    margin-bottom: 2px;
+  }
+  
+  .subtitle {
+    font-size: 10px;
+    color: #d4c8a8;
+  }
+  
+  .subtitle .author { color: #fbbf24; font-weight: bold; }
+  
+  /* ناحیه بازی */
+  .game-area {
+    flex: 1;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* تخته منچ */
+  .board {
+    width: 100%;
+    aspect-ratio: 1;
+    max-width: 400px;
+    background: var(--board-bg);
+    border: 8px solid var(--board-border);
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 20px rgba(0,0,0,0.2);
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(15, 1fr);
+    grid-template-rows: repeat(15, 1fr);
+    gap: 1px;
+    padding: 2px;
+  }
+  
+  .cell {
+    background: rgba(255,255,255,0.4);
+    border: 1px solid rgba(0,0,0,0.1);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 2px;
+  }
+  
+  /* استایل مسیر بازی */
+  .cell.path {
+    background: var(--path-bg);
+    border: 1px solid var(--path-border);
+  }
+  
+  /* خونه‌های امن */
+  .cell.safe { background: #e2e8f0; }
+  
+  /* خونه‌های شروع */
+  .cell.start-p1 { background: var(--p1); }
+  .cell.start-p2 { background: var(--p2); }
+  .cell.start-p3 { background: var(--p3); }
+  .cell.start-p4 { background: var(--p4); }
+  
+  /* خونه‌های خونه (پایگاه) */
+  .cell.home-base { border: none; background: transparent; }
+  
+  /* مهره‌ها */
+  .piece {
+    width: 80%;
+    height: 80%;
+    border-radius: 50%;
+    position: absolute;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.4), inset 0 2px 4px rgba(255,255,255,0.5);
+    border: 2px solid rgba(0,0,0,0.3);
+    transition: all 0.3s ease;
+    z-index: 10;
+    cursor: pointer;
+  }
+  
+  .piece.p1 { background: radial-gradient(circle at 30% 30%, #ff6b6b, var(--p1)); }
+  .piece.p2 { background: radial-gradient(circle at 30% 30%, #6ee7b7, var(--p2)); }
+  .piece.p3 { background: radial-gradient(circle at 30% 30%, #93c5fd, var(--p3)); }
+  .piece.p4 { background: radial-gradient(circle at 30% 30%, #fde047, var(--p4)); }
+  
+  .piece.active {
+    animation: pulse 1s infinite alternate;
+    border-color: #fff;
+    box-shadow: 0 0 15px #fff, 0 2px 4px rgba(0,0,0,0.4);
+  }
+  
+  @keyframes pulse {
+    from { transform: scale(1); }
+    to { transform: scale(1.15); }
+  }
+  
+  /* پایگاه‌ها */
+  .base {
+    position: absolute;
+    width: 30%;
+    height: 30%;
+    border-radius: 12px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 4px;
+    padding: 6px;
+    z-index: 1;
+    border: 3px solid rgba(0,0,0,0.2);
+  }
+  
+  .base-p1 { top: 2%; right: 2%; background: rgba(239,68,68,0.3); border-color: var(--p1); }
+  .base-p2 { top: 2%; left: 2%; background: rgba(34,197,94,0.3); border-color: var(--p2); }
+  .base-p3 { bottom: 2%; left: 2%; background: rgba(59,130,246,0.3); border-color: var(--p3); }
+  .base-p4 { bottom: 2%; right: 2%; background: rgba(234,179,8,0.3); border-color: var(--p4); }
+  
+  .base-slot {
+    background: rgba(255,255,255,0.4);
+    border-radius: 50%;
+    position: relative;
+    border: 2px solid rgba(0,0,0,0.1);
+  }
+  
+  /* کنترل‌ها و تاس */
+  .controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 10px 20px;
+    margin-top: 10px;
+  }
+  
+  .dice-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .dice {
+    width: 60px;
+    height: 60px;
+    background: #fff;
+    border-radius: 12px;
+    border: 3px solid #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    font-weight: 900;
+    color: #333;
+    box-shadow: 0 4px 0 #aaa, 0 6px 10px rgba(0,0,0,0.3);
+    cursor: pointer;
+    transition: 0.1s;
+  }
+  
+  .dice:active { transform: translateY(4px); box-shadow: 0 0 0 #aaa; }
+  .dice.rolling { animation: roll 0.5s ease; }
+  
+  @keyframes roll {
+    0% { transform: rotate(0deg); }
+    25% { transform: rotate(90deg); }
+    50% { transform: rotate(180deg); }
+    75% { transform: rotate(270deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  .dice-label {
+    font-size: 11px;
+    color: #fbbf24;
+    margin-top: 6px;
+    font-weight: bold;
+  }
+  
+  .btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #8b5a2b, #5c3a1e);
+    color: #fff;
+    font-size: 14px;
+    font-weight: bold;
+    font-family: inherit;
+    cursor: pointer;
+    box-shadow: 0 4px 0 var(--wood-dark);
+    transition: 0.1s;
+  }
+  
+  .btn:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--wood-dark); }
+  
+  /* صفحه شروع */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 10, 5, 0.95);
+    backdrop-filter: blur(5px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    text-align: center;
+    padding: 20px;
+  }
+  
+  .overlay.hidden { display: none; }
+  
+  .overlay h2 {
+    font-size: 32px;
+    color: #fbbf24;
+    text-shadow: 0 4px 0 var(--wood-dark);
+    margin-bottom: 12px;
+  }
+  
+  .overlay p {
+    font-size: 14px;
+    color: #d4c8a8;
+    margin-bottom: 24px;
+    line-height: 1.8;
+  }
+  
+  .overlay .btn { font-size: 18px; padding: 14px 40px; }
+  
+  /* Toast */
+  .toast {
+    position: fixed;
+    top: 10%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-20px);
+    background: rgba(0,0,0,0.9);
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: bold;
+    opacity: 0;
+    transition: 0.3s;
+    z-index: 200;
+    pointer-events: none;
+    border: 2px solid #fbbf24;
+  }
+  
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>منچ سلطان</h1>
+    <div class="subtitle">ساخته شده توسط <span class="author">امیررضا غلامی</span> • v18.0.0</div>
+  </div>
+  
+  <div class="game-area">
+    <div class="board" id="board">
+      <!-- پایگاه‌ها -->
+      <div class="base base-p1" id="base-p1">
+        <div class="base-slot" data-id="p1-0"></div>
+        <div class="base-slot" data-id="p1-1"></div>
+        <div class="base-slot" data-id="p1-2"></div>
+        <div class="base-slot" data-id="p1-3"></div>
+      </div>
+      <div class="base base-p2" id="base-p2">
+        <div class="base-slot" data-id="p2-0"></div>
+        <div class="base-slot" data-id="p2-1"></div>
+        <div class="base-slot" data-id="p2-2"></div>
+        <div class="base-slot" data-id="p2-3"></div>
+      </div>
+      <div class="base base-p3" id="base-p3">
+        <div class="base-slot" data-id="p3-0"></div>
+        <div class="base-slot" data-id="p3-1"></div>
+        <div class="base-slot" data-id="p3-2"></div>
+        <div class="base-slot" data-id="p3-3"></div>
+      </div>
+      <div class="base base-p4" id="base-p4">
+        <div class="base-slot" data-id="p4-0"></div>
+        <div class="base-slot" data-id="p4-1"></div>
+        <div class="base-slot" data-id="p4-2"></div>
+        <div class="base-slot" data-id="p4-3"></div>
+      </div>
+    </div>
+    
+    <div class="controls">
+      <button class="btn" onclick="resetGame()">شروع مجدد</button>
+      <div class="dice-container">
+        <div class="dice" id="dice" onclick="rollDice()">🎲</div>
+        <div class="dice-label" id="diceLabel">نوبت شماست</div>
+      </div>
+      <div style="width: 80px;"></div>
+    </div>
+  </div>
+  
+  <!-- صفحه شروع -->
+  <div class="overlay" id="startOverlay">
+    <h2>منچ سلطان</h2>
+    <p>با هوش مصنوعی بازی کن<br>تاس بریز، مهره‌هات رو حرکت بده<br>و حریفان رو شکست بده!</p>
+    <button class="btn" onclick="startGame()">شروع بازی</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== اطلاعات نسخه =====
+const APP_VERSION = '18.0.0';
+const APP_AUTHOR = 'امیررضا غلامی';
+console.log(`🎲 منچ سلطان v${APP_VERSION}`);
+console.log(`👨‍💻 ساخته شده توسط: ${APP_AUTHOR}`);
+
+// ===== متغیرهای بازی =====
+let gameRunning = false;
+let currentPlayer = 1; // 1: تو (قرمز), 2: سبز, 3: آبی, 4: زرد
+let diceValue = 0;
+let diceRolled = false;
+let canRoll = true;
+
+// وضعیت مهره‌ها: هر بازیکن ۴ مهره
+// هر مهره: { state: 'base' | 'path' | 'home', pathIndex: 0-51, homeIndex: 0-4 }
+let pieces = {
+  1: [{state:'base', pathIndex: -1}, {state:'base', pathIndex: -1}, {state:'base', pathIndex: -1}, {state:'base', pathIndex: -1}],
+  2: [{state:'base', pathIndex: -1}, {state:'base', pathIndex: -1}, {state:'base', pathIndex: -1}, {state:'base', pathIndex: -1}],
+  3: [{state:'base', pathIndex: -1}, {state:'base', pathIndex: -1}, {state:'base', pathIndex: -1}, {state:'base', pathIndex: -1}],
+  4: [{state:'base', pathIndex: -1}, {state:'base', pathIndex: -1}, {state:'base', pathIndex: -1}, {state:'base', pathIndex: -1}]
+};
+
+// مسیر اصلی (۵۲ خونه)
+// این آرایه شامل مختصات [row, col] برای هر خونه مسیر هست
+const PATH = [
+  // مسیر قرمز (شروع از بالا راست به سمت پایین)
+  [6,13],[6,12],[6,11],[6,10],[6,9], // 0-4
+  [5,8],[4,8],[3,8],[2,8],[1,8],[0,8], // 5-10
+  [0,7],[0,6], // 11-12
+  [0,5],[1,5],[2,5],[3,5],[4,5],[5,5], // 13-18
+  [6,4],[6,3],[6,2],[6,1],[6,0], // 19-23
+  [7,0],[8,0], // 24-25
+  [8,1],[8,2],[8,3],[8,4],[8,5], // 26-30
+  [9,6],[10,6],[11,6],[12,6],[13,6],[14,6], // 31-36
+  [14,7],[14,8], // 37-38
+  [14,9],[13,9],[12,9],[11,9],[10,9],[9,9], // 39-44
+  [8,10],[8,11],[8,12],[8,13],[8,14], // 45-49
+  [7,14],[6,14] // 50-51
+];
+
+// خونه‌های شروع هر بازیکن در مسیر اصلی
+const START_INDEX = {
+  1: 0,   // قرمز
+  2: 13,  // سبز
+  3: 26,  // آبی
+  4: 39   // زرد
+};
+
+// مسیرهای خونه (برای مهره‌های هر بازیکن)
+const HOME_PATH = {
+  1: [[7,13],[7,12],[7,11],[7,10],[7,9]], // قرمز
+  2: [[1,7],[2,7],[3,7],[4,7],[5,7]], // سبز
+  3: [[7,1],[7,2],[7,3],[7,4],[7,5]], // آبی
+  4: [[13,7],[12,7],[11,7],[10,7],[9,7]] // زرد
+};
+
+// ===== ساخت تخته =====
+function createBoard() {
+  const board = document.getElementById('board');
+  // پاک کردن مسیرهای قبلی
+  board.querySelectorAll('.cell').forEach(c => c.remove());
+  
+  // ساخت ۱۵x۱۵ خونه
+  for (let r = 0; r < 15; r++) {
+    for (let c = 0; c < 15; c++) {
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+      cell.dataset.row = r;
+      cell.dataset.col = c;
+      
+      // بررسی اینکه آیا این خونه جزو مسیر هست یا نه
+      const pathIndex = PATH.findIndex(p => p[0] === r && p[1] === c);
+      if (pathIndex !== -1) {
+        cell.classList.add('path');
+        cell.dataset.pathIndex = pathIndex;
+        
+        // خونه‌های شروع
+        for (let p = 1; p <= 4; p++) {
+          if (pathIndex === START_INDEX[p]) {
+            cell.classList.add('start-p' + p);
+          }
+        }
+        
+        // خونه‌های امن (فعلاً ساده)
+        if (pathIndex % 13 === 0) cell.classList.add('safe');
+      } else {
+        // بررسی اینکه آیا این خونه جزو مسیر خونه هست یا نه
+        let isHome = false;
+        for (let p = 1; p <= 4; p++) {
+          if (HOME_PATH[p].some(h => h[0] === r && h[1] === c)) {
+            isHome = true;
+            break;
+          }
+        }
+        if (isHome) {
+          cell.classList.add('home-base');
+          cell.style.visibility = 'hidden'; // مسیر خونه رو مخفی می‌کنیم (چون دیده نمیشه)
+        } else {
+          cell.style.visibility = 'hidden';
+        }
+      }
+      
+      board.appendChild(cell);
+    }
+  }
+  
+  // اضافه کردن مهره‌ها
+  renderPieces();
+}
+
+// ===== رسم مهره‌ها =====
+function renderPieces() {
+  // پاک کردن مهره‌های قبلی
+  document.querySelectorAll('.piece').forEach(p => p.remove());
+  
+  // برای هر بازیکن
+  for (let p = 1; p <= 4; p++) {
+    for (let i = 0; i < 4; i++) {
+      const piece = pieces[p][i];
+      const el = document.createElement('div');
+      el.className = `piece p${p}`;
+      el.dataset.player = p;
+      el.dataset.index = i;
+      
+      if (piece.state === 'base') {
+        // مهره توی پایگاه
+        const baseSlot = document.querySelector(`#base-p${p} .base-slot[data-id="p${p}-${i}"]`);
+        if (baseSlot) {
+          baseSlot.appendChild(el);
+        }
+      } else if (piece.state === 'path') {
+        // مهره روی مسیر
+        const [r, c] = PATH[piece.pathIndex];
+        const cell = document.querySelector(`.cell[data-row="${r}"][data-col="${c}"]`);
+        if (cell) {
+          cell.appendChild(el);
+        }
+      } else if (piece.state === 'home') {
+        // مهره توی خونه
+        const [r, c] = HOME_PATH[p][piece.homeIndex];
+        const cell = document.querySelector(`.cell[data-row="${r}"][data-col="${c}"]`);
+        if (cell) {
+          cell.appendChild(el);
+        }
+      }
+      
+      // اگه نوبت این بازیکنه و می‌تونه حرکت کنه، مهره رو فعال نشون بده
+      if (p === currentPlayer && diceRolled && canMovePiece(p, i)) {
+        el.classList.add('active');
+        el.onclick = () => selectPiece(p, i);
+      }
+    }
+  }
+}
+
+// ===== بررسی اینکه آیا مهره می‌تونه حرکت کنه =====
+function canMovePiece(player, pieceIndex) {
+  const piece = pieces[player][pieceIndex];
+  
+  if (piece.state === 'base') {
+    return diceValue === 6; // فقط با ۶ از پایگاه بیرون میاد
+  }
+  
+  if (piece.state === 'home') {
+    // بررسی اینکه آیا می‌تونه به خونه بره
+    const newHomeIndex = piece.homeIndex + diceValue;
+    return newHomeIndex < 5;
+  }
+  
+  if (piece.state === 'path') {
+    // بررسی اینکه آیا از مسیر اصلی به خونه می‌ره یا نه
+    const stepsToHome = getStepsToHome(player, piece.pathIndex);
+    if (stepsToHome <= diceValue) {
+      // می‌خواد به خونه بره
+      return true; // (فعلاً ساده)
+    }
+    return true; // حرکت عادی
+  }
+  
+  return false;
+}
+
+// ===== محاسبه فاصله تا خونه =====
+function getStepsToHome(player, pathIndex) {
+  const startIdx = START_INDEX[player];
+  let distance;
+  
+  if (pathIndex >= startIdx) {
+    distance = pathIndex - startIdx;
+  } else {
+    distance = 52 - startIdx + pathIndex;
+  }
+  
+  return 51 - distance; // ۵۱ خونه تا خونه
+}
+
+// ===== انتخاب مهره =====
+function selectPiece(player, pieceIndex) {
+  if (!diceRolled || currentPlayer !== player) return;
+  
+  const piece = pieces[player][pieceIndex];
+  let moved = false;
+  
+  if (piece.state === 'base') {
+    if (diceValue === 6) {
+      piece.state = 'path';
+      piece.pathIndex = START_INDEX[player];
+      moved = true;
+    }
+  } else if (piece.state === 'path') {
+    const newIndex = (piece.pathIndex + diceValue) % 52;
+    const stepsToHome = getStepsToHome(player, piece.pathIndex);
+    
+    if (stepsToHome <= diceValue) {
+      // مهره به خونه می‌ره
+      const homeSteps = diceValue - stepsToHome;
+      piece.state = 'home';
+      piece.homeIndex = homeSteps - 1;
+      if (piece.homeIndex >= 5) {
+        showToast('این مهره نمی‌تونه به خونه بره!');
+        return;
+      }
+      moved = true;
+    } else {
+      piece.pathIndex = newIndex;
+      moved = true;
+    }
+  } else if (piece.state === 'home') {
+    const newHomeIndex = piece.homeIndex + diceValue;
+    if (newHomeIndex < 5) {
+      piece.homeIndex = newHomeIndex;
+      moved = true;
+    }
+  }
+  
+  if (moved) {
+    // بررسی برنده شدن
+    if (checkWin(player)) {
+      gameOver(player);
+      return;
+    }
+    
+    // چک کردن برخورد با مهره‌های حریف (اگه روی مسیر بود)
+    if (piece.state === 'path') {
+      checkCollision(player, piece.pathIndex);
+    }
+    
+    // اگه ۶ آورده، نوبت دوباره
+    if (diceValue === 6) {
+      diceRolled = false;
+      canRoll = true;
+      renderPieces();
+      updateDiceLabel();
+      return;
+    }
+    
+    // نوبت بعدی
+    nextTurn();
+  }
+}
+
+// ===== بررسی برخورد با حریف =====
+function checkCollision(player, pathIndex) {
+  for (let p = 1; p <= 4; p++) {
+    if (p === player) continue;
+    for (let i = 0; i < 4; i++) {
+      const otherPiece = pieces[p][i];
+      if (otherPiece.state === 'path' && otherPiece.pathIndex === pathIndex) {
+        // مهره حریف رو به پایگاه برگردون
+        otherPiece.state = 'base';
+        otherPiece.pathIndex = -1;
+        showToast(`مهره ${getPlayerName(p)} زده شد!`);
+        playTone(600, 0.15, 'sawtooth', 0.2);
+      }
+    }
+  }
+}
+
+// ===== بررسی برنده شدن =====
+function checkWin(player) {
+  return pieces[player].every(p => p.state === 'home');
+}
+
+// ===== نوبت بعدی =====
+function nextTurn() {
+  diceRolled = false;
+  canRoll = true;
+  diceValue = 0;
+  
+  currentPlayer = (currentPlayer % 4) + 1;
+  
+  // اگه نوبت هوش مصنوعی بود
+  if (currentPlayer !== 1) {
+    updateDiceLabel();
+    renderPieces();
+    setTimeout(aiTurn, 800);
+  } else {
+    updateDiceLabel();
+    renderPieces();
+  }
+}
+
+// ===== تاس ریختن =====
+function rollDice() {
+  if (!gameRunning || !canRoll) return;
+  if (currentPlayer !== 1) return; // فقط تو می‌تونی تاس بریزی
+  
+  canRoll = false;
+  const diceEl = document.getElementById('dice');
+  diceEl.classList.add('rolling');
+  
+  // انیمیشن
+  let count = 0;
+  const interval = setInterval(() => {
+    diceValue = Math.floor(Math.random() * 6) + 1;
+    diceEl.textContent = diceValue;
+    count++;
+    if (count > 10) {
+      clearInterval(interval);
+      diceEl.classList.remove('rolling');
+      diceRolled = true;
+      checkValidMoves();
+    }
+  }, 50);
+  
+  playTone(500, 0.1, 'square', 0.15);
+}
+
+// ===== بررسی حرکت‌های معتبر =====
+function checkValidMoves() {
+  const hasMove = [0,1,2,3].some(i => canMovePiece(currentPlayer, i));
+  
+  if (!hasMove) {
+    showToast('حرکتی ممکن نیست!');
+    setTimeout(() => {
+      if (diceValue === 6) {
+        // اگه ۶ آورده ولی حرکتی نیست، نوبتش می‌سوزه
+        nextTurn();
+      } else {
+        nextTurn();
+      }
+    }, 1000);
+    return;
+  }
+  
+  renderPieces();
+  updateDiceLabel();
+}
+
+// ===== نوبت هوش مصنوعی =====
+function aiTurn() {
+  if (!gameRunning || currentPlayer === 1) return;
+  
+  updateDiceLabel();
+  
+  // هوش مصنوعی تاس می‌ریزه
+  canRoll = false;
+  const diceEl = document.getElementById('dice');
+  diceEl.classList.add('rolling');
+  
+  let count = 0;
+  const interval = setInterval(() => {
+    diceValue = Math.floor(Math.random() * 6) + 1;
+    diceEl.textContent = diceValue;
+    count++;
+    if (count > 10) {
+      clearInterval(interval);
+      diceEl.classList.remove('rolling');
+      diceRolled = true;
+      
+      // انتخاب حرکت
+      setTimeout(() => aiMove(), 500);
+    }
+  }, 50);
+}
+
+function aiMove() {
+  const validMoves = [];
+  for (let i = 0; i < 4; i++) {
+    if (canMovePiece(currentPlayer, i)) {
+      validMoves.push(i);
+    }
+  }
+  
+  if (validMoves.length === 0) {
+    showToast('هوش مصنوعی حرکتی نداره!');
+    setTimeout(() => nextTurn(), 800);
+    return;
+  }
+  
+  // انتخاب تصادفی (هوش مصنوعی ساده)
+  const pieceIndex = validMoves[Math.floor(Math.random() * validMoves.length)];
+  selectPiece(currentPlayer, pieceIndex);
+}
+
+// ===== برنده شدن =====
+function gameOver(winner) {
+  gameRunning = false;
+  if (winner === 1) {
+    showToast('🏆 تبریک! تو بردی!');
+    playTone(800, 0.2, 'sine', 0.3);
+    setTimeout(() => playTone(1200, 0.3, 'sine', 0.3), 200);
+  } else {
+    showToast(`😢 ${getPlayerName(winner)} برد!`);
+    playTone(200, 0.3, 'sawtooth', 0.2);
+  }
+  
+  setTimeout(() => {
+    document.getElementById('startOverlay').classList.remove('hidden');
+  }, 2000);
+}
+
+// ===== شروع بازی =====
+function startGame() {
+  document.getElementById('startOverlay').classList.add('hidden');
+  gameRunning = true;
+  currentPlayer = 1;
+  diceRolled = false;
+  canRoll = true;
+  diceValue = 0;
+  pieces = {
+    1: [{state:'base'}, {state:'base'}, {state:'base'}, {state:'base'}],
+    2: [{state:'base'}, {state:'base'}, {state:'base'}, {state:'base'}],
+    3: [{state:'base'}, {state:'base'}, {state:'base'}, {state:'base'}],
+    4: [{state:'base'}, {state:'base'}, {state:'base'}, {state:'base'}]
+  };
+  
+  createBoard();
+  updateDiceLabel();
+}
+
+function resetGame() {
+  startGame();
+}
+
+// ===== ابزار =====
+function getPlayerName(p) {
+  return { 1: 'تو (قرمز)', 2: 'سبز', 3: 'آبی', 4: 'زرد' }[p];
+}
+
+function updateDiceLabel() {
+  const label = document.getElementById('diceLabel');
+  if (currentPlayer === 1) {
+    label.textContent = 'نوبت شماست';
+  } else {
+    label.textContent = `نوبت ${getPlayerName(currentPlayer)}`;
+  }
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ===== صدا =====
+let audioCtx = null;
+function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+function playTone(freq, duration = 0.1, type = 'sine', volume = 0.15) {
+  try {
+    initAudio();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(volume, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(); osc.stop(audioCtx.currentTime + duration);
+  } catch(e) {}
+}
+
+// ===== شروع =====
+createBoard();
+</script>
+
+</body>
+  </html>
