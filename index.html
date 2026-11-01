@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#5c3a1e">
-<title>منچ سلطان v19</title>
+<title>منچ سلطان v20</title>
 <style>
-:root{--wd:#3d2314;--wm:#5c3a1e;--bb:#d4b896;--pb:#fdfaf0;--p1:#ef4444;--p2:#22c55e;--p3:#3b82f6;--p4:#eab308}
+:root{--wd:#3d2314;--bb:#d4b896;--pb:#fdfaf0;--p1:#ef4444;--p2:#22c55e;--p3:#3b82f6;--p4:#eab308}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:Tahoma,sans-serif;background:var(--wd);min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:10px;color:#f8fafc;overflow:hidden;user-select:none}
 .container{width:100%;max-width:440px;height:100dvh;max-height:850px;display:flex;flex-direction:column}
@@ -56,6 +56,7 @@ h1{font-size:26px;color:#fbbf24;text-shadow:0 2px 0 var(--wd);margin-bottom:2px}
 .menu-btn .icon{font-size:22px}
 .menu-btn .label{font-size:13px}
 .menu-btn .sub{font-size:10px;color:#cbb894;font-weight:normal}
+.menu-btn.selected .sub{color:#fff3c4}
 .start-btn{padding:16px 50px;font-size:18px;background:linear-gradient(135deg,#fbbf24,#d97706);color:#2a1a0e;box-shadow:0 5px 0 #7c2d12}
 .start-btn:disabled{opacity:.4;cursor:not-allowed}
 .toast{position:fixed;top:10%;left:50%;transform:translateX(-50%) translateY(-20px);background:rgba(0,0,0,.9);color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:bold;opacity:0;transition:.3s;z-index:200;pointer-events:none;border:2px solid #fbbf24}
@@ -92,9 +93,9 @@ h1{font-size:26px;color:#fbbf24;text-shadow:0 2px 0 var(--wd);margin-bottom:2px}
       <div class="menu-section-title" id="secPlayers">تعداد بازیکن</div>
       <div class="grid-2">
         <button class="menu-btn" data-group="players" data-value="1" onclick="selectOption(this)"><span class="icon">🤖</span><span class="label" data-i18n="one">تک‌نفره</span><span class="sub" data-i18n="one_sub">تو vs ۳ هوش مصنوعی</span></button>
-        <button class="menu-btn" data-group="players" data-value="2" onclick="selectOption(this)"><span class="icon">👥</span><span class="label" data-i18n="two">دو نفره</span><span class="sub" data-i18n="two_sub">تو vs ۱ هوش مصنوعی</span></button>
-        <button class="menu-btn" data-group="players" data-value="3" onclick="selectOption(this)"><span class="icon">👨‍👩‍👦</span><span class="label" data-i18n="three">سه نفره</span><span class="sub" data-i18n="three_sub">تو vs ۲ هوش مصنوعی</span></button>
-        <button class="menu-btn" data-group="players" data-value="4" onclick="selectOption(this)"><span class="icon">👨‍👩‍👧‍👦</span><span class="label" data-i18n="four">چهار نفره</span><span class="sub" data-i18n="four_sub">تو vs ۳ هوش مصنوعی</span></button>
+        <button class="menu-btn" data-group="players" data-value="2" onclick="selectOption(this)"><span class="icon">👥</span><span class="label" data-i18n="two">دو نفره</span><span class="sub" data-i18n="two_sub">۲ انسان vs ۲ هوش مصنوعی</span></button>
+        <button class="menu-btn" data-group="players" data-value="3" onclick="selectOption(this)"><span class="icon">👨‍👩‍👦</span><span class="label" data-i18n="three">سه نفره</span><span class="sub" data-i18n="three_sub">۳ انسان vs ۱ هوش مصنوعی</span></button>
+        <button class="menu-btn" data-group="players" data-value="4" onclick="selectOption(this)"><span class="icon">👨‍👩‍👧‍👦</span><span class="label" data-i18n="four">چهار نفره</span><span class="sub" data-i18n="four_sub">۴ انسان (بدون هوش مصنوعی)</span></button>
       </div>
     </div>
     <div class="menu-section">
@@ -111,11 +112,11 @@ h1{font-size:26px;color:#fbbf24;text-shadow:0 2px 0 var(--wd);margin-bottom:2px}
 </div>
 <div class="toast" id="toast"></div>
 <script>
-const I18N={fa:{title:'منچ سلطان',madeBy:'ساخته شده توسط',restart:'شروع مجدد',menuHint:'حالت بازی رو انتخاب کن',secPlayers:'تعداد بازیکن',secDice:'حالت تاس',one:'تک‌نفره',one_sub:'تو vs ۳ هوش مصنوعی',two:'دو نفره',two_sub:'تو vs ۱ هوش مصنوعی',three:'سه نفره',three_sub:'تو vs ۲ هوش مصنوعی',four:'چهار نفره',four_sub:'تو vs ۳ هوش مصنوعی',dice_all:'همه اعداد',dice_all_sub:'۱ تا ۶',dice_even:'۲، ۴، ۶',dice_even_sub:'اعداد زوج',dice_65:'۶ و ۵',dice_65_sub:'فقط دو عدد',dice_six:'فقط ۶',dice_six_sub:'سخت‌ترین',start:'شروع بازی',yourTurn:'نوبت شماست',turnOf:'نوبت',p1:'تو (قرمز)',p2:'سبز',p3:'آبی',p4:'زرد',noMove:'حرکتی ممکن نیست!',aiNoMove:'هوش مصنوعی حرکتی نداره!',beaten:'مهره {name} زده شد!',youWin:'🏆 تبریک! تو بردی!',aiWins:'😢 {name} برد!',sixAgain:'۶ آوردی! دوباره!',cannotHome:'این مهره نمی‌تونه به خونه بره!'},en:{title:'Ludo Sultan',madeBy:'Made by',restart:'Restart',menuHint:'Choose game mode',secPlayers:'Players',secDice:'Dice mode',one:'1 Player',one_sub:'You vs 3 AI',two:'2 Players',two_sub:'You vs 1 AI',three:'3 Players',three_sub:'You vs 2 AI',four:'4 Players',four_sub:'You vs 3 AI',dice_all:'All',dice_all_sub:'1-6',dice_even:'2,4,6',dice_even_sub:'Even',dice_65:'6 & 5',dice_65_sub:'Only two',dice_six:'Only 6',dice_six_sub:'Hardest',start:'Start',yourTurn:'Your turn',turnOf:'Turn:',p1:'You (Red)',p2:'Green',p3:'Blue',p4:'Yellow',noMove:'No move!',aiNoMove:'AI no move!',beaten:'{name} beaten!',youWin:'🏆 You win!',aiWins:'😢 {name} wins!',sixAgain:'You rolled 6!',cannotHome:'Cannot enter home!'}};
+const I18N={fa:{title:'منچ سلطان',madeBy:'ساخته شده توسط',restart:'شروع مجدد',menuHint:'حالت بازی رو انتخاب کن',secPlayers:'تعداد بازیکن',secDice:'حالت تاس',one:'تک‌نفره',one_sub:'تو vs ۳ هوش مصنوعی',two:'دو نفره',two_sub:'۲ انسان vs ۲ هوش مصنوعی',three:'سه نفره',three_sub:'۳ انسان vs ۱ هوش مصنوعی',four:'چهار نفره',four_sub:'۴ انسان (بدون هوش مصنوعی)',dice_all:'همه اعداد',dice_all_sub:'۱ تا ۶',dice_even:'۲، ۴، ۶',dice_even_sub:'اعداد زوج',dice_65:'۶ و ۵',dice_65_sub:'فقط دو عدد',dice_six:'فقط ۶',dice_six_sub:'سخت‌ترین',start:'شروع بازی',yourTurn:'نوبت شماست',turnOf:'نوبت',p1:'بازیکن ۱ (قرمز)',p2:'بازیکن ۲ (سبز)',p3:'بازیکن ۳ (آبی)',p4:'بازیکن ۴ (زرد)',noMove:'حرکتی ممکن نیست!',aiNoMove:'هوش مصنوعی حرکتی نداره!',beaten:'مهره {name} زده شد!',youWin:'🏆 {name} برد!',aiWins:'😢 {name} برد!',sixAgain:'۶ آوردی! دوباره!',cannotHome:'این مهره نمی‌تونه به خونه بره!',human:'انسان',ai:'هوش مصنوعی'},en:{title:'Ludo Sultan',madeBy:'Made by',restart:'Restart',menuHint:'Choose game mode',secPlayers:'Players',secDice:'Dice mode',one:'1 Player',one_sub:'You vs 3 AI',two:'2 Players',two_sub:'2 humans vs 2 AI',three:'3 Players',three_sub:'3 humans vs 1 AI',four:'4 Players',four_sub:'4 humans (no AI)',dice_all:'All',dice_all_sub:'1-6',dice_even:'2,4,6',dice_even_sub:'Even',dice_65:'6 & 5',dice_65_sub:'Only two',dice_six:'Only 6',dice_six_sub:'Hardest',start:'Start',yourTurn:'Your turn',turnOf:'Turn:',p1:'Player 1 (Red)',p2:'Player 2 (Green)',p3:'Player 3 (Blue)',p4:'Player 4 (Yellow)',noMove:'No move!',aiNoMove:'AI no move!',beaten:'{name} beaten!',youWin:'🏆 {name} wins!',aiWins:'😢 {name} wins!',sixAgain:'You rolled 6!',cannotHome:'Cannot enter home!',human:'Human',ai:'AI'}};
 const settings={playerCount:null,diceMode:null,lang:'fa'};
 function t(k,v){let s=(I18N[settings.lang][k])||k;if(v)for(const x in v)s=s.replace('{'+x+'}',v[x]);return s}
 
-let gameRunning=false,currentPlayer=1,activePlayers=[1],diceValue=0,diceRolled=false,canRoll=true,pieces={};
+let gameRunning=false,currentPlayer=1,activePlayers=[1],humanPlayers=[1],aiPlayers=[],diceValue=0,diceRolled=false,canRoll=true,pieces={};
 function resetPieces(){const p={};for(let i=1;i<=4;i++)p[i]=[0,1,2,3].map(()=>({state:'base',pathIndex:-1,homeIndex:-1}));return p}
 
 const PATH=[[6,13],[6,12],[6,11],[6,10],[6,9],[5,8],[4,8],[3,8],[2,8],[1,8],[0,8],[0,7],[0,6],[0,5],[1,5],[2,5],[3,5],[4,5],[5,5],[6,4],[6,3],[6,2],[6,1],[6,0],[7,0],[8,0],[8,1],[8,2],[8,3],[8,4],[8,5],[9,6],[10,6],[11,6],[12,6],[13,6],[14,6],[14,7],[14,8],[14,9],[13,9],[12,9],[11,9],[10,9],[9,9],[8,10],[8,11],[8,12],[8,13],[8,14],[7,14],[6,14]];
@@ -138,7 +139,7 @@ for(let i=0;i<4;i++){const pc=pieces[p][i];const el=document.createElement('div'
 if(pc.state==='base'){const s=document.querySelector('#base-p'+p+' .base-slot:nth-child('+(i+1)+')');if(s)s.appendChild(el)}
 else if(pc.state==='path'){const rc=PATH[pc.pathIndex];const c=document.querySelector('.cell[data-row="'+rc[0]+'"][data-col="'+rc[1]+'"]');if(c)c.appendChild(el)}
 else if(pc.state==='home'){const rc=HOME[p][pc.homeIndex];const c=document.querySelector('.cell[data-row="'+rc[0]+'"][data-col="'+rc[1]+'"]');if(c)c.appendChild(el)}
-if(p===currentPlayer&&diceRolled&&canMove(p,i)&&p===1){el.classList.add('active');el.onclick=()=>selectPiece(p,i)}}}}
+if(p===currentPlayer&&diceRolled&&canMove(p,i)&&humanPlayers.includes(p)){el.classList.add('active');el.onclick=()=>selectPiece(p,i)}}}}
 
 function canMove(pl,i){if(!activePlayers.includes(pl))return false;const pc=pieces[pl][i];
 if(pc.state==='base')return diceValue===6;
@@ -158,7 +159,7 @@ else if(pc.state==='home'){const ni=pc.homeIndex+diceValue;if(ni<5){pc.homeIndex
 if(!moved)return;
 if(checkWin(pl)){gameOver(pl);return}
 if(pc.state==='path')checkCollision(pl,pc.pathIndex);
-if(diceValue===6){diceRolled=false;canRoll=true;diceValue=0;renderPieces();updateLabel();if(currentPlayer!==1)setTimeout(aiTurn,800);else toast(t('sixAgain'));return}
+if(diceValue===6){diceRolled=false;canRoll=true;diceValue=0;renderPieces();updateLabel();if(aiPlayers.includes(currentPlayer))setTimeout(aiTurn,800);else toast(t('sixAgain'));return}
 nextTurn()}
 
 function checkCollision(pl,pi){if(pi%13===0)return;
@@ -169,18 +170,18 @@ function checkWin(pl){return pieces[pl].every(p=>p.state==='home')}
 
 function nextTurn(){diceRolled=false;canRoll=true;diceValue=0;
 let n=currentPlayer;for(let k=0;k<4;k++){n=(n%4)+1;if(activePlayers.includes(n)){currentPlayer=n;break}}
-updateLabel();renderPieces();if(currentPlayer!==1)setTimeout(aiTurn,800)}
+updateLabel();renderPieces();if(aiPlayers.includes(currentPlayer))setTimeout(aiTurn,800)}
 
-function rollDice(){if(!gameRunning||!canRoll||currentPlayer!==1)return;canRoll=false;
+function rollDice(){if(!gameRunning||!canRoll||aiPlayers.includes(currentPlayer))return;canRoll=false;
 const d=document.getElementById('dice');d.classList.add('rolling');let c=0;
 const iv=setInterval(()=>{diceValue=rollAllowed();d.textContent=diceValue;c++;if(c>10){clearInterval(iv);d.classList.remove('rolling');diceRolled=true;checkMoves()}},50);
 playTone(500,.1,'square',.15)}
 
 function checkMoves(){const has=[0,1,2,3].some(i=>canMove(currentPlayer,i));
-if(!has){toast(currentPlayer===1?t('noMove'):t('aiNoMove'));setTimeout(nextTurn,1000);return}
+if(!has){toast(aiPlayers.includes(currentPlayer)?t('aiNoMove'):t('noMove'));setTimeout(nextTurn,1000);return}
 renderPieces();updateLabel()}
 
-function aiTurn(){if(!gameRunning||currentPlayer===1)return;canRoll=false;
+function aiTurn(){if(!gameRunning||!aiPlayers.includes(currentPlayer))return;canRoll=false;
 const d=document.getElementById('dice');d.classList.add('rolling');let c=0;
 const iv=setInterval(()=>{diceValue=rollAllowed();d.textContent=diceValue;c++;if(c>10){clearInterval(iv);d.classList.remove('rolling');diceRolled=true;setTimeout(aiMove,400)}},50)}
 
@@ -189,8 +190,8 @@ if(!v.length){toast(t('aiNoMove'));setTimeout(nextTurn,800);return}
 selectPiece(currentPlayer,v[Math.floor(Math.random()*v.length)])}
 
 function gameOver(w){gameRunning=false;
-if(w===1){toast(t('youWin'));playTone(800,.2,'sine',.3);setTimeout(()=>playTone(1200,.3,'sine',.3),200)}
-else{toast(t('aiWins',{name:t('p'+w)}));playTone(200,.3,'sawtooth',.2)}
+toast(t('youWin',{name:t('p'+w)}));
+playTone(w===1?800:400,.3,'sine',.3);
 setTimeout(()=>document.getElementById('startOverlay').classList.remove('hidden'),2000)}
 
 function openMenu(){gameRunning=false;document.getElementById('startOverlay').classList.remove('hidden')}
@@ -204,12 +205,26 @@ document.getElementById('startBtn').disabled=!(settings.playerCount&&settings.di
 function startGame(){document.getElementById('startOverlay').classList.add('hidden');
 gameRunning=true;currentPlayer=1;diceRolled=false;canRoll=true;diceValue=0;
 pieces=resetPieces();
-// تعیین بازیکنان فعال
+
 const n=settings.playerCount||1;
-activePlayers=[1];
-for(let i=2;i<=n;i++)activePlayers.push(i);
-// غیرفعال کردن پایگاه‌های غیرفعال
+activePlayers=[];
+humanPlayers=[];
+aiPlayers=[];
+
+// منطق جدید:
+// تک‌نفره: ۱ انسان + ۳ هوش مصنوعی
+// دو نفره: ۲ انسان + ۲ هوش مصنوعی
+// سه نفره: ۳ انسان + ۱ هوش مصنوعی
+// چهار نفره: ۴ انسان + ۰ هوش مصنوعی
+
+if(n===1){humanPlayers=[1];aiPlayers=[2,3,4];activePlayers=[1,2,3,4]}
+else if(n===2){humanPlayers=[1,2];aiPlayers=[3,4];activePlayers=[1,2,3,4]}
+else if(n===3){humanPlayers=[1,2,3];aiPlayers=[4];activePlayers=[1,2,3,4]}
+else if(n===4){humanPlayers=[1,2,3,4];aiPlayers=[];activePlayers=[1,2,3,4]}
+
+// پایگاه‌های غیرفعال مخفی
 for(let p=1;p<=4;p++){const b=document.getElementById('base-p'+p);b.style.display=activePlayers.includes(p)?'':'none'}
+
 createBoard();updateLabel()}
 
 function toggleLanguage(){settings.lang=settings.lang==='fa'?'en':'fa';applyLang()}
@@ -227,7 +242,10 @@ document.querySelectorAll('[data-i18n]').forEach(el=>el.textContent=t(el.dataset
 updateLabel()}
 
 function updateLabel(){const l=document.getElementById('diceLabel');if(!l)return;
-if(currentPlayer===1)l.textContent=t('yourTurn');else l.textContent=t('turnOf')+' '+t('p'+currentPlayer)}
+if(!gameRunning){l.textContent='—';return}
+const name=t('p'+currentPlayer);
+const isAI=aiPlayers.includes(currentPlayer);
+if(isAI)l.textContent=name+' 🤖';else l.textContent=name+' 👤'}
 
 function toast(m){const el=document.getElementById('toast');el.textContent=m;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2000)}
 
@@ -238,4 +256,4 @@ function playTone(f,d=.1,ty='sine',v=.15){try{if(!audioCtx)audioCtx=new(window.A
 createBoard();applyLang();
 </script>
 </body>
-          </html>
+        </html>
