@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#5c3a1e">
-<title>منچ سلطان v20</title>
+<title>منچ سلطان v22</title>
 <style>
 :root{--wd:#3d2314;--bb:#d4b896;--pb:#fdfaf0;--p1:#ef4444;--p2:#22c55e;--p3:#3b82f6;--p4:#eab308}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -17,9 +17,9 @@ h1{font-size:26px;color:#fbbf24;text-shadow:0 2px 0 var(--wd);margin-bottom:2px}
 .lang-btn{position:absolute;top:0;inset-inline-start:0;background:rgba(0,0,0,.3);border:1px solid #fbbf24;color:#fbbf24;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:bold;cursor:pointer;font-family:inherit}
 .game-area{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .board{width:100%;aspect-ratio:1;max-width:400px;background:var(--bb);border:8px solid #8b5a2b;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.5);position:relative;display:grid;grid-template-columns:repeat(15,1fr);grid-template-rows:repeat(15,1fr);gap:1px;padding:2px}
-.cell{background:rgba(255,255,255,.4);border:1px solid rgba(0,0,0,.1);position:relative;display:flex;align-items:center;justify-content:center;border-radius:2px}
+.cell{background:rgba(255,255,255,.4);border:1px solid rgba(0,0,0,.1);position:relative;display:flex;align-items:center;justify-content:center;border-radius:2px;font-size:10px}
 .cell.path{background:var(--pb);border:1px solid #a89984}
-.cell.safe{background:#e2e8f0}
+.cell.safe{background:#f1f5f9;box-shadow:inset 0 0 0 2px #fbbf24}
 .cell.start-p1{background:var(--p1)}.cell.start-p2{background:var(--p2)}.cell.start-p3{background:var(--p3)}.cell.start-p4{background:var(--p4)}
 .piece{width:78%;height:78%;border-radius:50%;position:absolute;box-shadow:0 2px 4px rgba(0,0,0,.4),inset 0 2px 4px rgba(255,255,255,.5);border:2px solid rgba(0,0,0,.3);transition:all .3s;z-index:10;cursor:pointer}
 .piece.p1{background:radial-gradient(circle at 30% 30%,#ff6b6b,var(--p1))}
@@ -87,7 +87,7 @@ h1{font-size:26px;color:#fbbf24;text-shadow:0 2px 0 var(--wd);margin-bottom:2px}
     </div>
   </div>
   <div class="overlay" id="startOverlay">
-    <h2 id="menuTitle">منچ سلطان</h2>
+    <h2>منچ سلطان</h2>
     <div class="hint" id="menuHint">حالت بازی رو انتخاب کن</div>
     <div class="menu-section">
       <div class="menu-section-title" id="secPlayers">تعداد بازیکن</div>
@@ -112,126 +112,106 @@ h1{font-size:26px;color:#fbbf24;text-shadow:0 2px 0 var(--wd);margin-bottom:2px}
 </div>
 <div class="toast" id="toast"></div>
 <script>
-const I18N={fa:{title:'منچ سلطان',madeBy:'ساخته شده توسط',restart:'شروع مجدد',menuHint:'حالت بازی رو انتخاب کن',secPlayers:'تعداد بازیکن',secDice:'حالت تاس',one:'تک‌نفره',one_sub:'تو vs ۳ هوش مصنوعی',two:'دو نفره',two_sub:'۲ انسان vs ۲ هوش مصنوعی',three:'سه نفره',three_sub:'۳ انسان vs ۱ هوش مصنوعی',four:'چهار نفره',four_sub:'۴ انسان (بدون هوش مصنوعی)',dice_all:'همه اعداد',dice_all_sub:'۱ تا ۶',dice_even:'۲، ۴، ۶',dice_even_sub:'اعداد زوج',dice_65:'۶ و ۵',dice_65_sub:'فقط دو عدد',dice_six:'فقط ۶',dice_six_sub:'سخت‌ترین',start:'شروع بازی',yourTurn:'نوبت شماست',turnOf:'نوبت',p1:'بازیکن ۱ (قرمز)',p2:'بازیکن ۲ (سبز)',p3:'بازیکن ۳ (آبی)',p4:'بازیکن ۴ (زرد)',noMove:'حرکتی ممکن نیست!',aiNoMove:'هوش مصنوعی حرکتی نداره!',beaten:'مهره {name} زده شد!',youWin:'🏆 {name} برد!',aiWins:'😢 {name} برد!',sixAgain:'۶ آوردی! دوباره!',cannotHome:'این مهره نمی‌تونه به خونه بره!',human:'انسان',ai:'هوش مصنوعی'},en:{title:'Ludo Sultan',madeBy:'Made by',restart:'Restart',menuHint:'Choose game mode',secPlayers:'Players',secDice:'Dice mode',one:'1 Player',one_sub:'You vs 3 AI',two:'2 Players',two_sub:'2 humans vs 2 AI',three:'3 Players',three_sub:'3 humans vs 1 AI',four:'4 Players',four_sub:'4 humans (no AI)',dice_all:'All',dice_all_sub:'1-6',dice_even:'2,4,6',dice_even_sub:'Even',dice_65:'6 & 5',dice_65_sub:'Only two',dice_six:'Only 6',dice_six_sub:'Hardest',start:'Start',yourTurn:'Your turn',turnOf:'Turn:',p1:'Player 1 (Red)',p2:'Player 2 (Green)',p3:'Player 3 (Blue)',p4:'Player 4 (Yellow)',noMove:'No move!',aiNoMove:'AI no move!',beaten:'{name} beaten!',youWin:'🏆 {name} wins!',aiWins:'😢 {name} wins!',sixAgain:'You rolled 6!',cannotHome:'Cannot enter home!',human:'Human',ai:'AI'}};
-const settings={playerCount:null,diceMode:null,lang:'fa'};
-function t(k,v){let s=(I18N[settings.lang][k])||k;if(v)for(const x in v)s=s.replace('{'+x+'}',v[x]);return s}
+const T={fa:{menuHint:'حالت بازی رو انتخاب کن',secPlayers:'تعداد بازیکن',secDice:'حالت تاس',one:'تک‌نفره',one_sub:'تو vs ۳ هوش مصنوعی',two:'دو نفره',two_sub:'۲ انسان vs ۲ هوش مصنوعی',three:'سه نفره',three_sub:'۳ انسان vs ۱ هوش مصنوعی',four:'چهار نفره',four_sub:'۴ انسان (بدون هوش مصنوعی)',dice_all:'همه اعداد',dice_all_sub:'۱ تا ۶',dice_even:'۲، ۴، ۶',dice_even_sub:'اعداد زوج',dice_65:'۶ و ۵',dice_65_sub:'فقط دو عدد',dice_six:'فقط ۶',dice_six_sub:'سخت‌ترین',start:'شروع بازی',restart:'شروع مجدد',madeBy:'ساخته شده توسط',p1:'بازیکن ۱ (قرمز)',p2:'بازیکن ۲ (سبز)',p3:'بازیکن ۳ (آبی)',p4:'بازیکن ۴ (زرد)',noMove:'حرکتی ممکن نیست!',aiNoMove:'هوش مصنوعی حرکتی نداره!',beaten:'مهره {name} زده شد!',win:'🏆 {name} برد!',sixAgain:'۶ آوردی! دوباره!',cannotHome:'نمی‌تونه به خونه بره!'},en:{menuHint:'Choose game mode',secPlayers:'Players',secDice:'Dice mode',one:'1 Player',one_sub:'You vs 3 AI',two:'2 Players',two_sub:'2 humans vs 2 AI',three:'3 Players',three_sub:'3 humans vs 1 AI',four:'4 Players',four_sub:'4 humans (no AI)',dice_all:'All',dice_all_sub:'1-6',dice_even:'2,4,6',dice_even_sub:'Even',dice_65:'6 & 5',dice_65_sub:'Only two',dice_six:'Only 6',dice_six_sub:'Hardest',start:'Start',restart:'Restart',madeBy:'Made by',p1:'Player 1 (Red)',p2:'Player 2 (Green)',p3:'Player 3 (Blue)',p4:'Player 4 (Yellow)',noMove:'No move!',aiNoMove:'AI no move!',beaten:'{name} beaten!',win:'🏆 {name} wins!',sixAgain:'You rolled 6!',cannotHome:'Cannot enter home!'}};
+const S={players:null,dice:null,lang:'fa'};
+const t=(k,v)=>{let s=T[S.lang][k]||k;if(v)for(const x in v)s=s.replace('{'+x+'}',v[x]);return s};
 
-let gameRunning=false,currentPlayer=1,activePlayers=[1],humanPlayers=[1],aiPlayers=[],diceValue=0,diceRolled=false,canRoll=true,pieces={};
-function resetPieces(){const p={};for(let i=1;i<=4;i++)p[i]=[0,1,2,3].map(()=>({state:'base',pathIndex:-1,homeIndex:-1}));return p}
+let running=false,cur=1,active=[1],humans=[1],ais=[],dv=0,rolled=false,canRoll=true;
+let P={};
+function resetP(){const o={};for(let i=1;i<=4;i++)o[i]=[0,1,2,3].map(()=>({s:'base',p:-1,h:-1}));return o}
 
+// مسیر استاندارد ۵۲ خونه
 const PATH=[[6,13],[6,12],[6,11],[6,10],[6,9],[5,8],[4,8],[3,8],[2,8],[1,8],[0,8],[0,7],[0,6],[0,5],[1,5],[2,5],[3,5],[4,5],[5,5],[6,4],[6,3],[6,2],[6,1],[6,0],[7,0],[8,0],[8,1],[8,2],[8,3],[8,4],[8,5],[9,6],[10,6],[11,6],[12,6],[13,6],[14,6],[14,7],[14,8],[14,9],[13,9],[12,9],[11,9],[10,9],[9,9],[8,10],[8,11],[8,12],[8,13],[8,14],[7,14],[6,14]];
-const START={1:0,2:13,3:26,4:39};
+const START={1:0,2:9,3:26,4:35};
 const HOME={1:[[7,13],[7,12],[7,11],[7,10],[7,9]],2:[[1,7],[2,7],[3,7],[4,7],[5,7]],3:[[7,1],[7,2],[7,3],[7,4],[7,5]],4:[[13,7],[12,7],[11,7],[10,7],[9,7]]};
 
-function rollAllowed(){const m=settings.diceMode;if(m==='all')return Math.floor(Math.random()*6)+1;if(m==='even_six'){const o=[2,4,6];return o[Math.floor(Math.random()*3)]}if(m==='six_five')return Math.random()<0.5?6:5;if(m==='six')return 6;return Math.floor(Math.random()*6)+1}
+function roll(){const m=S.dice;if(m==='all')return Math.floor(Math.random()*6)+1;if(m==='even_six')return[2,4,6][Math.floor(Math.random()*3)];if(m==='six_five')return Math.random()<.5?6:5;if(m==='six')return 6;return Math.floor(Math.random()*6)+1}
 
-function createBoard(){const b=document.getElementById('board');b.querySelectorAll('.cell').forEach(c=>c.remove());b.querySelectorAll('.piece').forEach(p=>p.remove());
-for(let r=0;r<15;r++)for(let c=0;c<15;c++){const cell=document.createElement('div');cell.className='cell';cell.dataset.row=r;cell.dataset.col=c;
+function buildBoard(){const b=document.getElementById('board');b.querySelectorAll('.cell,.piece').forEach(e=>e.remove());
+for(let r=0;r<15;r++)for(let c=0;c<15;c++){const cell=document.createElement('div');cell.className='cell';cell.dataset.r=r;cell.dataset.c=c;
 const pi=PATH.findIndex(p=>p[0]===r&&p[1]===c);
-if(pi!==-1){cell.classList.add('path');cell.dataset.pidx=pi;for(let p=1;p<=4;p++)if(pi===START[p])cell.classList.add('start-p'+p);if(pi%13===0)cell.classList.add('safe')}
+if(pi!==-1){cell.classList.add('path');cell.dataset.pi=pi;let isStart=false;for(let p=1;p<=4;p++)if(pi===START[p]){cell.classList.add('start-p'+p);isStart=true}
+if(pi%13===0&&!isStart){cell.classList.add('safe');cell.textContent='⭐'}}
 else{let ih=false;for(let p=1;p<=4;p++)if(HOME[p].some(h=>h[0]===r&&h[1]===c)){ih=true;break}if(ih)cell.classList.add('home-base');cell.style.visibility='hidden'}
 b.appendChild(cell)}
-renderPieces()}
+drawPieces()}
 
-function renderPieces(){document.querySelectorAll('.piece').forEach(p=>p.remove());
-for(let p=1;p<=4;p++){if(!activePlayers.includes(p))continue;
-for(let i=0;i<4;i++){const pc=pieces[p][i];const el=document.createElement('div');el.className='piece p'+p;el.dataset.player=p;el.dataset.index=i;
-if(pc.state==='base'){const s=document.querySelector('#base-p'+p+' .base-slot:nth-child('+(i+1)+')');if(s)s.appendChild(el)}
-else if(pc.state==='path'){const rc=PATH[pc.pathIndex];const c=document.querySelector('.cell[data-row="'+rc[0]+'"][data-col="'+rc[1]+'"]');if(c)c.appendChild(el)}
-else if(pc.state==='home'){const rc=HOME[p][pc.homeIndex];const c=document.querySelector('.cell[data-row="'+rc[0]+'"][data-col="'+rc[1]+'"]');if(c)c.appendChild(el)}
-if(p===currentPlayer&&diceRolled&&canMove(p,i)&&humanPlayers.includes(p)){el.classList.add('active');el.onclick=()=>selectPiece(p,i)}}}}
+function drawPieces(){document.querySelectorAll('.piece').forEach(p=>p.remove());
+for(let p=1;p<=4;p++){if(!active.includes(p))continue;
+for(let i=0;i<4;i++){const pc=P[p][i];const el=document.createElement('div');el.className='piece p'+p;
+if(pc.s==='base'){const s=document.querySelector('#base-p'+p+' .base-slot:nth-child('+(i+1)+')');if(s)s.appendChild(el)}
+else if(pc.s==='path'){const rc=PATH[pc.p];const c=document.querySelector('.cell[data-r="'+rc[0]+'"][data-c="'+rc[1]+'"]');if(c)c.appendChild(el)}
+else{const rc=HOME[p][pc.h];const c=document.querySelector('.cell[data-r="'+rc[0]+'"][data-c="'+rc[1]+'"]');if(c)c.appendChild(el)}
+if(p===cur&&rolled&&canMove(p,i)&&humans.includes(p)){el.classList.add('active');el.onclick=()=>move(p,i)}}}}
 
-function canMove(pl,i){if(!activePlayers.includes(pl))return false;const pc=pieces[pl][i];
-if(pc.state==='base')return diceValue===6;
-if(pc.state==='home')return(pc.homeIndex+diceValue)<5;
-if(pc.state==='path')return true;return false}
+function canMove(pl,i){if(!active.includes(pl))return false;const pc=P[pl][i];
+if(pc.s==='base')return dv===6;
+if(pc.s==='home')return pc.h+dv<5;
+return true}
 
-function entryIdx(pl){return(START[pl]+51)%52}
-function stepsToHome(pl,pi){const e=entryIdx(pl);return pi<=e?e-pi:52-pi+e}
+const entry=p=>(START[p]+51)%52;
+const toHome=(p,pi)=>{const e=entry(p);return pi<=e?e-pi:52-pi+e};
 
-function selectPiece(pl,i){if(!diceRolled||currentPlayer!==pl)return;const pc=pieces[pl][i];let moved=false;
-if(pc.state==='base'){if(diceValue===6){pc.state='path';pc.pathIndex=START[pl];moved=true}}
-else if(pc.state==='path'){const sh=stepsToHome(pl,pc.pathIndex);
-if(sh<diceValue){const hs=diceValue-sh-1;if(hs<5){pc.state='home';pc.homeIndex=hs;moved=true}else{toast(t('cannotHome'));return}}
-else if(sh===diceValue){pc.state='home';pc.homeIndex=0;moved=true}
-else{pc.pathIndex=(pc.pathIndex+diceValue)%52;moved=true}}
-else if(pc.state==='home'){const ni=pc.homeIndex+diceValue;if(ni<5){pc.homeIndex=ni;moved=true}else{toast(t('cannotHome'));return}}
-if(!moved)return;
-if(checkWin(pl)){gameOver(pl);return}
-if(pc.state==='path')checkCollision(pl,pc.pathIndex);
-if(diceValue===6){diceRolled=false;canRoll=true;diceValue=0;renderPieces();updateLabel();if(aiPlayers.includes(currentPlayer))setTimeout(aiTurn,800);else toast(t('sixAgain'));return}
-nextTurn()}
+function move(pl,i){if(!rolled||cur!==pl)return;const pc=P[pl][i];let ok=false;
+if(pc.s==='base'){if(dv===6){pc.s='path';pc.p=START[pl];ok=true}}
+else if(pc.s==='path'){const sh=toHome(pl,pc.p);
+if(sh<dv){const hs=dv-sh-1;if(hs<5){pc.s='home';pc.h=hs;ok=true}else{toast(t('cannotHome'));return}}
+else if(sh===dv){pc.s='home';pc.h=0;ok=true}
+else{pc.p=(pc.p+dv)%52;ok=true}}
+else{const nh=pc.h+dv;if(nh<5){pc.h=nh;ok=true}else{toast(t('cannotHome'));return}}
+if(!ok)return;
+if(P[pl].every(x=>x.s==='home')){gameOver(pl);return}
+if(pc.s==='path')collide(pl,pc.p);
+if(dv===6){rolled=false;canRoll=true;dv=0;drawPieces();label();if(ais.includes(cur))setTimeout(aiTurn,800);else toast(t('sixAgain'));return}
+next()}
 
-function checkCollision(pl,pi){if(pi%13===0)return;
-for(let p=1;p<=4;p++){if(p===pl||!activePlayers.includes(p))continue;
-for(let i=0;i<4;i++){const o=pieces[p][i];if(o.state==='path'&&o.pathIndex===pi){o.state='base';o.pathIndex=-1;toast(t('beaten',{name:t('p'+p)}));playTone(600,.15,'sawtooth',.2)}}}}
+function collide(pl,pi){if(pi%13===0)return;
+for(let p=1;p<=4;p++){if(p===pl||!active.includes(p))continue;
+for(let i=0;i<4;i++){const o=P[p][i];if(o.s==='path'&&o.p===pi){o.s='base';o.p=-1;toast(t('beaten',{name:t('p'+p)}));beep(600,.15,'sawtooth')}}}}
 
-function checkWin(pl){return pieces[pl].every(p=>p.state==='home')}
+function next(){rolled=false;canRoll=true;dv=0;
+let n=cur;for(let k=0;k<4;k++){n=(n%4)+1;if(active.includes(n)){cur=n;break}}
+label();drawPieces();if(ais.includes(cur))setTimeout(aiTurn,800)}
 
-function nextTurn(){diceRolled=false;canRoll=true;diceValue=0;
-let n=currentPlayer;for(let k=0;k<4;k++){n=(n%4)+1;if(activePlayers.includes(n)){currentPlayer=n;break}}
-updateLabel();renderPieces();if(aiPlayers.includes(currentPlayer))setTimeout(aiTurn,800)}
-
-function rollDice(){if(!gameRunning||!canRoll||aiPlayers.includes(currentPlayer))return;canRoll=false;
+function rollDice(){if(!running||!canRoll||ais.includes(cur))return;canRoll=false;
 const d=document.getElementById('dice');d.classList.add('rolling');let c=0;
-const iv=setInterval(()=>{diceValue=rollAllowed();d.textContent=diceValue;c++;if(c>10){clearInterval(iv);d.classList.remove('rolling');diceRolled=true;checkMoves()}},50);
-playTone(500,.1,'square',.15)}
+const iv=setInterval(()=>{dv=roll();d.textContent=dv;if(++c>10){clearInterval(iv);d.classList.remove('rolling');rolled=true;check()}},50);beep(500,.1,'square')}
 
-function checkMoves(){const has=[0,1,2,3].some(i=>canMove(currentPlayer,i));
-if(!has){toast(aiPlayers.includes(currentPlayer)?t('aiNoMove'):t('noMove'));setTimeout(nextTurn,1000);return}
-renderPieces();updateLabel()}
+function check(){if(![0,1,2,3].some(i=>canMove(cur,i))){toast(ais.includes(cur)?t('aiNoMove'):t('noMove'));setTimeout(next,1000);return}drawPieces();label()}
 
-function aiTurn(){if(!gameRunning||!aiPlayers.includes(currentPlayer))return;canRoll=false;
+function aiTurn(){if(!running||!ais.includes(cur))return;canRoll=false;
 const d=document.getElementById('dice');d.classList.add('rolling');let c=0;
-const iv=setInterval(()=>{diceValue=rollAllowed();d.textContent=diceValue;c++;if(c>10){clearInterval(iv);d.classList.remove('rolling');diceRolled=true;setTimeout(aiMove,400)}},50)}
+const iv=setInterval(()=>{dv=roll();d.textContent=dv;if(++c>10){clearInterval(iv);d.classList.remove('rolling');rolled=true;setTimeout(aiMove,400)}},50)}
 
-function aiMove(){const v=[];for(let i=0;i<4;i++)if(canMove(currentPlayer,i))v.push(i);
-if(!v.length){toast(t('aiNoMove'));setTimeout(nextTurn,800);return}
-selectPiece(currentPlayer,v[Math.floor(Math.random()*v.length)])}
+function aiMove(){const v=[];for(let i=0;i<4;i++)if(canMove(cur,i))v.push(i);
+if(!v.length){toast(t('aiNoMove'));setTimeout(next,800);return}
+move(cur,v[Math.floor(Math.random()*v.length)])}
 
-function gameOver(w){gameRunning=false;
-toast(t('youWin',{name:t('p'+w)}));
-playTone(w===1?800:400,.3,'sine',.3);
+function gameOver(w){running=false;toast(t('win',{name:t('p'+w)}));beep(w===1?800:400,.3);
 setTimeout(()=>document.getElementById('startOverlay').classList.remove('hidden'),2000)}
 
-function openMenu(){gameRunning=false;document.getElementById('startOverlay').classList.remove('hidden')}
+function openMenu(){running=false;document.getElementById('startOverlay').classList.remove('hidden')}
 
-function selectOption(el){const g=el.dataset.group,v=el.dataset.value;
+function selectOption(el){const g=el.dataset.group;
 document.querySelectorAll('.menu-btn[data-group="'+g+'"]').forEach(b=>b.classList.remove('selected'));
 el.classList.add('selected');
-if(g==='players')settings.playerCount=parseInt(v);else settings.diceMode=v;
-document.getElementById('startBtn').disabled=!(settings.playerCount&&settings.diceMode)}
+if(g==='players')S.players=+el.dataset.value;else S.dice=el.dataset.value;
+document.getElementById('startBtn').disabled=!(S.players&&S.dice)}
 
 function startGame(){document.getElementById('startOverlay').classList.add('hidden');
-gameRunning=true;currentPlayer=1;diceRolled=false;canRoll=true;diceValue=0;
-pieces=resetPieces();
+running=true;cur=1;rolled=false;canRoll=true;dv=0;P=resetP();
+const n=S.players||1;
+humans=[];ais=[];active=[1,2,3,4];
+if(n===1){humans=[1];ais=[2,3,4]}
+else if(n===2){humans=[1,2];ais=[3,4]}
+else if(n===3){humans=[1,2,3];ais=[4]}
+else{humans=[1,2,3,4];ais=[]}
+buildBoard();label()}
 
-const n=settings.playerCount||1;
-activePlayers=[];
-humanPlayers=[];
-aiPlayers=[];
+function toggleLanguage(){S.lang=S.lang==='fa'?'en':'fa';applyLang()}
 
-// منطق جدید:
-// تک‌نفره: ۱ انسان + ۳ هوش مصنوعی
-// دو نفره: ۲ انسان + ۲ هوش مصنوعی
-// سه نفره: ۳ انسان + ۱ هوش مصنوعی
-// چهار نفره: ۴ انسان + ۰ هوش مصنوعی
-
-if(n===1){humanPlayers=[1];aiPlayers=[2,3,4];activePlayers=[1,2,3,4]}
-else if(n===2){humanPlayers=[1,2];aiPlayers=[3,4];activePlayers=[1,2,3,4]}
-else if(n===3){humanPlayers=[1,2,3];aiPlayers=[4];activePlayers=[1,2,3,4]}
-else if(n===4){humanPlayers=[1,2,3,4];aiPlayers=[];activePlayers=[1,2,3,4]}
-
-// پایگاه‌های غیرفعال مخفی
-for(let p=1;p<=4;p++){const b=document.getElementById('base-p'+p);b.style.display=activePlayers.includes(p)?'':'none'}
-
-createBoard();updateLabel()}
-
-function toggleLanguage(){settings.lang=settings.lang==='fa'?'en':'fa';applyLang()}
-
-function applyLang(){document.documentElement.lang=settings.lang;document.documentElement.dir=settings.lang==='fa'?'rtl':'ltr';
-document.getElementById('langBtnLabel').textContent=settings.lang==='fa'?'EN':'فا';
-document.getElementById('titleEl').textContent=t('title');
+function applyLang(){document.documentElement.lang=S.lang;document.documentElement.dir=S.lang==='fa'?'rtl':'ltr';
+document.getElementById('langBtnLabel').textContent=S.lang==='fa'?'EN':'فا';
 document.getElementById('madeByText').textContent=t('madeBy');
 document.getElementById('restartText').textContent=t('restart');
 document.getElementById('menuHint').textContent=t('menuHint');
@@ -239,21 +219,18 @@ document.getElementById('secPlayers').textContent=t('secPlayers');
 document.getElementById('secDice').textContent=t('secDice');
 document.getElementById('startText').textContent=t('start');
 document.querySelectorAll('[data-i18n]').forEach(el=>el.textContent=t(el.dataset.i18n));
-updateLabel()}
+label()}
 
-function updateLabel(){const l=document.getElementById('diceLabel');if(!l)return;
-if(!gameRunning){l.textContent='—';return}
-const name=t('p'+currentPlayer);
-const isAI=aiPlayers.includes(currentPlayer);
-if(isAI)l.textContent=name+' 🤖';else l.textContent=name+' 👤'}
+function label(){const l=document.getElementById('diceLabel');if(!l)return;
+if(!running){l.textContent='—';return}
+l.textContent=t('p'+cur)+(ais.includes(cur)?' 🤖':' 👤')}
 
-function toast(m){const el=document.getElementById('toast');el.textContent=m;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2000)}
+function toast(m){const el=document.getElementById('toast');el.textContent=m;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),2000)}
 
-let audioCtx=null;
-function playTone(f,d=.1,ty='sine',v=.15){try{if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=ty;o.frequency.value=f;g.gain.setValueAtTime(v,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+d);o.connect(g);g.connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+d)}catch(e){}}
+let ac=null;
+function beep(f,d=.1,ty='sine',v=.15){try{if(!ac)ac=new(window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain();o.type=ty;o.frequency.value=f;g.gain.setValueAtTime(v,ac.currentTime);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+d);o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+d)}catch(e){}}
 
-// شروع
-createBoard();applyLang();
+buildBoard();applyLang();
 </script>
 </body>
-        </html>
+  </html>
